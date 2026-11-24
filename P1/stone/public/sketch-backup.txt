@@ -1,0 +1,513 @@
+let playerRole = null;
+let engine;
+let platform;
+let stone;
+let socket;
+
+// Seven stones in a fixed order
+let stones = [
+  { name: "Hope", w: 150, h: 40, color: [170, 190, 170] },
+  { name: "Courage", w: 125, h: 38, color: [170, 180, 210] },
+  { name: "Love", w: 115, h: 35, color: [205, 175, 165] },
+  { name: "Trust", w: 100, h: 32, color: [180, 170, 195] },
+  { name: "Peace", w: 90, h: 30, color: [165, 190, 200] },
+  { name: "Together", w: 80, h: 28, color: [160, 185, 165] },
+  { name: "Joy", w: 70, h: 25, color: [215, 195, 150] }
+];
+
+let placedStones = [];
+let currentStoneIndex = 0;
+
+let stoneState = "held";
+let stableFrames = 0;
+let misplacedFrames = 0;
+
+// The first fallen stone
+let rollbackIndex = -1;
+
+let speed = 3;
+
+// Position used for new stones
+let startX = 300;
+let startY = 75;
+
+
+// 1. SETUP
+function setup() {
+  createCanvas(600, 400);
+
+  startGame();
+
+  // Connect to the server
+  socket = io();
+
+  socket.on("role", (role) => {
+  playerRole = role;
+  console.log("I am Player", playerRole);
+  });
+
+  socket.on("connect", () => {
+    console.log("Connected to server!");
+    console.log("My socket ID:", socket.id);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Disconnected from server");
+  });
+}
+
+
+// 2. START GAME
+function startGame() {
+  engine = Matter.Engine.create();
+  engine.gravity.y = 1;
+
+  platform = Matter.Bodies.rectangle(
+    300, 340, 300, 20,
+    { isStatic: true }
+  );
+
+  Matter.Composite.add(engine.world, platform);
+
+  placedStones = [];
+  currentStoneIndex = 0;
+  rollbackIndex = -1;
+
+  spawnStone();
+}
+
+
+// 3. CREATE A STONE
+function spawnStone() {
+  let data = stones[currentStoneIndex];
+
+  stone = Matter.Bodies.rectangle(
+    startX,
+    startY,
+    data.w,
+    data.h,
+    {
+      isStatic: true,
+      friction: 0.8,
+      frictionStatic: 1,
+      restitution: 0.02
+    }
+  );
+
+  Matter.Composite.add(engine.world, stone);
+
+  stoneState = "held";
+  stableFrames = 0;
+  misplacedFrames = 0;
+  rollbackIndex = -1;
+}
+
+
+// 4. MAIN LOOP
+function draw() {
+  background(225, 235, 225);
+
+  if (stoneState === "held") {
+    moveStone();
+  }
+
+  // Update physics
+  Matter.Engine.update(engine, 1000 / 60);
+
+  // Check previously placed stones
+  if (
+    stoneState !== "collapsed" &&
+    stoneState !== "completed"
+  ) {
+    checkStackStability();
+  }
+
+  // Check current stone
+  if (stoneState === "falling") {
+    checkStoneState();
+  }
+
+  // Draw platform
+  rectMode(CENTER);
+  fill(175, 155, 135);
+  stroke(100, 85, 70);
+  strokeWeight(2);
+  rect(300, 340, 300, 20);
+
+  // Draw placed stones
+  for (let item of placedStones) {
+    drawStone(item.body, item.data);
+  }
+
+  // Draw current stone
+  if (
+    stoneState !== "completed" &&
+    stoneState !== "fallen" &&
+    stoneState !== "collapsed"
+  ) {
+    drawStone(stone, stones[currentStoneIndex]);
+  }
+
+  drawInstructions();
+}
+
+
+// 5. DRAW STONE
+function drawStone(body, data) {
+  push();
+
+  translate(body.position.x, body.position.y);
+  rotate(body.angle);
+
+  rectMode(CENTER);
+  fill(...data.color);
+  stroke(80, 100, 90);
+  strokeWeight(2);
+
+  rect(0, 0, data.w, data.h, 10);
+
+  noStroke();
+  fill(45, 65, 55);
+  textAlign(CENTER, CENTER);
+  textSize(14);
+  text(data.name, 0, 0);
+
+  pop();
+}
+
+
+// 6. MOVE STONE
+function moveStone() {
+  let x = stone.position.x;
+  let y = stone.position.y;
+
+  if (keyIsDown(LEFT_ARROW)) x -= speed;
+  if (keyIsDown(RIGHT_ARROW)) x += speed;
+  if (keyIsDown(UP_ARROW)) y -= speed;
+  if (keyIsDown(DOWN_ARROW)) y += speed;
+
+  // Move using mouse drag
+  if (
+    mouseIsPressed &&
+    mouseX >= 0 &&
+    mouseX <= width &&
+    mouseY >= 0 &&
+    mouseY <= height
+  ) {
+    x = mouseX;
+    y = mouseY;
+  }
+
+  let data = stones[currentStoneIndex];
+
+  x = constrain(
+    x,
+    data.w / 2,
+    width - data.w / 2
+  );
+
+  y = constrain(y, 25, 185);
+
+  Matter.Body.setPosition(stone, { x, y });
+}
+
+
+// 7. RELEASE STONE
+function releaseStone() {
+  if (stoneState !== "held") return;
+
+  let x = stone.position.x;
+  let y = stone.position.y;
+  let data = stones[currentStoneIndex];
+
+  // Remove held body
+  Matter.Composite.remove(engine.world, stone);
+
+  // Create dynamic body
+  stone = Matter.Bodies.rectangle(
+    x, y,
+    data.w, data.h,
+    {
+      isStatic: false,
+      friction: 0.8,
+      frictionStatic: 1,
+      restitution: 0.02,
+      density: 0.001
+    }
+  );
+
+  Matter.Composite.add(engine.world, stone);
+
+  stoneState = "falling";
+  stableFrames = 0;
+  misplacedFrames = 0;
+}
+
+
+// 8. CHECK CURRENT STONE
+function checkStoneState() {
+
+  // Current stone falls out of screen
+  if (
+    stone.bounds.min.y > height ||
+    stone.position.x < -100 ||
+    stone.position.x > width + 100
+  ) {
+    stoneState = "fallen";
+    return;
+  }
+
+  // Find correct supporting body
+  let support;
+
+  if (currentStoneIndex === 0) {
+    support = platform;
+  } else {
+    support = placedStones[
+      currentStoneIndex - 1
+    ].body;
+  }
+
+  let touchingSupport =
+    Matter.Collision.collides(stone, support);
+
+  let slowMovement =
+    stone.speed < 0.35 &&
+    Math.abs(stone.angularSpeed) < 0.02;
+
+  // Check successful stacking
+  if (touchingSupport && slowMovement) {
+    stableFrames++;
+  } else {
+    stableFrames = 0;
+  }
+
+  // Stable for about 1.25 seconds
+  if (stableFrames >= 75) {
+    placeStone();
+    return;
+  }
+
+  // Check incorrect placement
+  if (currentStoneIndex > 0) {
+    let touchingPlatform =
+      Matter.Collision.collides(stone, platform);
+
+    if (
+      touchingPlatform &&
+      !touchingSupport &&
+      slowMovement
+    ) {
+      misplacedFrames++;
+    } else {
+      misplacedFrames = 0;
+    }
+
+    if (misplacedFrames >= 75) {
+      stoneState = "misplaced";
+    }
+  }
+}
+
+
+// 9. SAVE PLACED STONE
+function placeStone() {
+  let data = stones[currentStoneIndex];
+
+  placedStones.push({
+    body: stone,
+    data: data,
+
+    // Save the successful position
+    savedX: stone.position.x,
+    savedY: stone.position.y,
+    savedAngle: stone.angle
+  });
+
+  currentStoneIndex++;
+
+  if (currentStoneIndex < stones.length) {
+    spawnStone();
+  } else {
+    stoneState = "completed";
+  }
+}
+
+
+// 10. CHECK PREVIOUS STONES
+function checkStackStability() {
+
+  for (let i = 0; i < placedStones.length; i++) {
+
+    let item = placedStones[i];
+    let body = item.body;
+
+    // Compare current and original positions
+    let distanceMoved = dist(
+      body.position.x,
+      body.position.y,
+      item.savedX,
+      item.savedY
+    );
+
+    // Compare current and original angles
+    let angleMoved = Math.abs(
+      Math.atan2(
+        Math.sin(body.angle - item.savedAngle),
+        Math.cos(body.angle - item.savedAngle)
+      )
+    );
+
+    // Has this stone fallen or moved too much?
+    let hasFallen =
+      distanceMoved > 28 ||
+      angleMoved > 0.35 ||
+      body.bounds.min.y > height;
+
+    if (hasFallen) {
+
+      // Save earliest fallen stone
+      rollbackIndex = i;
+
+      stoneState = "collapsed";
+
+      console.log(
+        "Stack collapsed from:",
+        stones[i].name
+      );
+
+      return;
+    }
+  }
+}
+
+
+// 11. RETRY AFTER COLLAPSE
+function rollbackStack() {
+
+  // Remove the current stone
+  if (stone) {
+    Matter.Composite.remove(engine.world, stone);
+  }
+
+  // Remove the fallen stone and all later stones
+  for (
+    let i = placedStones.length - 1;
+    i >= rollbackIndex;
+    i--
+  ) {
+    Matter.Composite.remove(
+      engine.world,
+      placedStones[i].body
+    );
+  }
+
+  // Keep earlier stable stones
+  placedStones = placedStones.slice(
+    0,
+    rollbackIndex
+  );
+
+  // Restart at the earliest fallen stone
+  currentStoneIndex = rollbackIndex;
+
+  spawnStone();
+}
+
+
+// 12. PICK UP OR RETRY
+function pickUpStone() {
+
+  // If earlier stones collapsed
+  if (stoneState === "collapsed") {
+    rollbackStack();
+    return;
+  }
+
+  // Otherwise retry current stone
+  Matter.Composite.remove(engine.world, stone);
+
+  spawnStone();
+}
+
+
+// 13. KEYBOARD
+function keyPressed() {
+
+  // SPACE: Release
+  if (key === " ") {
+    releaseStone();
+  }
+
+  // R: Retry or Restart
+  if (key === "r" || key === "R") {
+
+    if (stoneState === "completed") {
+      startGame();
+    } else {
+      pickUpStone();
+    }
+  }
+
+  return false;
+}
+
+
+// 14. INSTRUCTIONS
+function drawInstructions() {
+  text(
+  "Player: " + (playerRole || "Waiting"),
+  15,
+  140
+  );
+
+  noStroke();
+  fill(40);
+  textAlign(LEFT, BASELINE);
+  textSize(14);
+
+  text("Arrows / Mouse drag: Move", 15, 25);
+  text("SPACE: Release", 15, 45);
+  text("R: Retry / Restart", 15, 65);
+
+  text("State: " + stoneState, 15, 90);
+
+  text(
+    "Stones stacked: " +
+    placedStones.length +
+    " / " + stones.length,
+    15, 115
+  );
+
+  if (stoneState === "collapsed") {
+    textSize(16);
+    textAlign(CENTER);
+
+    text(
+      stones[rollbackIndex].name +
+      " fell! Press R to retry.",
+      300, 210
+    );
+  }
+
+  if (stoneState === "fallen") {
+    textSize(17);
+    textAlign(CENTER);
+    text("Stone fell! Press R to retry.", 300, 210);
+  }
+
+  if (stoneState === "misplaced") {
+    textSize(16);
+    textAlign(CENTER);
+    text("Wrong position. Press R.", 300, 210);
+  }
+
+  if (stoneState === "completed") {
+    textSize(21);
+    textAlign(CENTER);
+    text("I hope you are okay.", 300, 190);
+
+    textSize(14);
+    text("Press R to restart.", 300, 220);
+  }
+}

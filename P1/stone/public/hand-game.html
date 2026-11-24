@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>Shared Wish - Hand Control</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@2.3.4/lib/p5.js"></script>
+
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+ 
+<style>
+  #success-screen:not([hidden]) {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2d211f;
+    animation: fadeIn 1.5s ease;
+  }
+    body {
+      margin: 20px;
+      font-family: Arial, sans-serif;
+      background: #f6f7f4;
+      color: #35493e;
+    }
+
+    h1 {
+      font-size: 24px;
+    }
+
+    canvas {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+    }
+
+#success-screen[hidden] {
+  display: none;
+}
+#success-screen img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+#success-message {
+  position: absolute;
+  bottom: 7%;
+  width: 100%;
+  text-align: center;
+  color: #fff8eb;
+  z-index: 2;
+  text-shadow: 0 2px 12px #38251f;
+}
+#success-message h1 {
+  font-size: 42px;
+  color: #fff8eb;
+}
+#success-message p {
+  font-size: 20px;
+}
+#success-message button {
+  margin: 10px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  background: #fff0d4;
+  color: #584237;
+  cursor: pointer;
+}
+#success-message button:hover {
+  background: #ffffff;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+  </style>
+</head>
+
+<body>
+  <h1>Shared Wish - Hand Control</h1>
+
+  <p>
+    Player A: Move your hand up and down.
+    Player B: Move your hand left and right.
+  </p>
+
+<div id="success-screen" hidden>
+  <img src="assets/together.png" alt="We made it stay!">
+
+  <div id="success-message">
+    <h1>We made it stay!</h1>
+    <p>I hope you are okay, wherever you are.</p>
+
+    <button id="play-again">Play Again</button>
+    <button id="success-home">Back to Home</button>
+  </div>
+</div>
+
+  <script src="hand-game.js"></script>
+</body>
+</html>

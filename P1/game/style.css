@@ -1,0 +1,392 @@
+#cover {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: blur(5px);
+    opacity: 0.6;
+    transition: filter 1.5s, opacity 1.5s;
+}
+main.entered #cover {
+    filter:blur(0);
+    opacity: 1;
+}
+body{
+    margin: 0;
+}
+main{
+    position: relative;
+}
+#title-button{
+    position: absolute;
+    font-family: "Noteworthy", cursive;
+    font-size: 120px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    white-space: nowrap;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+#subtitle{
+    display: block;
+    font-size: 32px;
+    margin-top: 16px;
+}
+#lake-button{
+    position: absolute;
+    left: 18%;
+    top:77%;
+    width:8%;
+    height: 12%;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+#lake-scene{
+    position: absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.5s;
+    pointer-events: none;
+}
+main.show-lake #lake-scene {
+    opacity: 1;
+}
+main.show-lake #cover {
+    opacity: 0;
+}
+#snow-scene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.5s;
+    pointer-events: none;
+}
+main.show-snow #snow-scene {
+    opacity: 1;
+}
+main.show-snow #cover {
+    opacity: 0;
+}
+#snow-button{
+    position: absolute;
+    left: 87%;
+    top: 24%;
+    width: 8%;
+    height: 12%;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    z-index: 5;
+}
+#back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    font-family: "Noteworthy", cursive;
+    font-size: 24px;
+    color: black;
+    background: #fff8dc;
+    border: none;
+    border-radius: 8px;
+    padding:8px 16px;
+    cursor: pointer;
+}
+#land-button {
+    position: absolute;
+    left: 19%;
+    top: 8%;
+    width: 9%;
+    height: 12%;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    z-index: 5;
+}
+
+#land-scene {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.5s;
+    pointer-events: none;
+}
+main.show-land #land-scene {
+    opacity: 1;
+}
+main.show-land #cover {
+    opacity: 0;
+}
+#sea-button {
+    position: absolute;
+    left: 85%;
+    top: 72%;
+    width: 12%;
+    height: 14%;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    z-index: 5;
+}
+#sea-scene {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.5s;
+    pointer-events: none;
+}
+main.show-sea #sea-scene {
+    opacity: 1;
+}
+main.show-sea #cover {
+    opacity: 0;
+}
+#book-button {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 105px;
+    z-index: 10;
+    background: rgba(255,248,220,0.65);
+    border: none;
+    padding:6px;
+    box-sizing: border-box;
+    cursor: pointer;
+    border-radius: 8px;
+}
+#book-button img{
+    width: 100%;
+    height: 60px;
+    object-fit: contain;
+    display: block;
+}
+#book-label{
+    display: block;
+    margin-top: -8px;
+    font-family: "Noteworthy", cursive;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #333;
+}
+#stone-guide {
+    width: 90vw;
+    max-width: 1200px;
+    max-height: 85vh;
+    box-sizing: border-box;
+    padding: 30px;
+    border:none;
+    border-radius: 20px;
+    background: #fff8dc;
+    overflow-y: auto;
+    font-family: "Noteworthy", cursive;
+}
+#guide-layout {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  align-items: center;
+}
+#stone-list {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  background: url("../assets/stone-background.png") center / contain no-repeat;
+}
+#stone-list img {
+  position: absolute;
+  width: 16%;
+  height: 20%;
+  object-fit: contain;
+}
+#stone-list img:nth-child(1) {
+  left: 36%;
+  top: 29%;
+}
+#stone-list img:nth-child(2) {
+  left: 54%;
+  top: 30%;
+}
+#stone-list img:nth-child(3) {
+  left: 25%;
+  top: 45%;
+}
+#stone-list img:nth-child(4) {
+  left: 44%;
+  top: 45%;
+}
+#stone-list img:nth-child(5) {
+  left: 64%;
+  top: 46%;
+}
+#stone-list img:nth-child(6) {
+  left: 35%;
+  top: 62%;
+}
+#stone-list img:nth-child(7) {
+  left: 55%;
+  top: 62%;
+}
+#stone-info {
+  padding: 0;
+  text-align: center;
+  margin-top: 8px;
+  position: relative;
+}
+#stone-description{
+    font-size: 28px;
+    line-height: 1,5;
+    margin: 12px auto;
+}
+#stone-guide::backdrop{
+    background: rgba(255,248,220,0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+#stone-stage{
+    position: relative;
+    width: 100%;
+    height: 45vh;
+}
+#current-stone{
+    position: absolute;
+    left: 50%;
+    top: 41%;
+    transform: translate(-50%,-50%) scale(1.5);
+    width: 60%;
+    height: 75%;
+    object-fit: contain;
+}
+#stone-navigation{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap:24px;
+    margin-top: 12px;
+    position: relative;
+    z-index: 20;
+    pointer-events: auto;
+}
+#previous-stone,
+#next-stone {
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 50%;
+  background: #eee5cb;
+  font-size: 30px;
+  cursor: pointer;
+}
+#stone-counter {
+  font-size: 22px;
+}
+#game-intro {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  text-align: center;
+  font-family: "Noteworthy", cursive;
+  color: #333;
+  pointer-events: none;
+}
+#game-intro h2 {
+  font-size: 32px;
+  margin: 0 0 20px;
+}
+#game-intro p {
+  font-size: 22px;
+  line-height: 1.7;
+  margin: 14px 0;
+}
+#start-button {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  font-family: "Noteworthy", cursive;
+  font-size: 36px;
+  color: #333;
+  background: #fff8dc;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 28px;
+  cursor: pointer;
+}
+  /* SUCCESS SCREEN */
+#success-screen[hidden] {
+  display: none;
+}
+
+#success-screen {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: #2d211f;
+  animation: successFadeIn 1.5s ease;
+}
+
+#success-screen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#success-message {
+  position: absolute;
+  bottom: 7%;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-family: "Noteworthy", cursive;
+  color: #fff8eb;
+  text-shadow: 0 2px 12px #38251f;
+}
+
+#success-message h1 {
+  font-size: 42px;
+}
+
+#success-message p {
+  font-size: 20px;
+}
+
+#success-message button {
+  margin: 10px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  background: #fff0d4;
+  color: #584237;
+  cursor: pointer;
+}
+
+@keyframes successFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

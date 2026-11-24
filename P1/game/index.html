@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>May It Stay</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+   <img id="cover" src="../assets/cover.png" alt="may it stay cover" >
+   <img id="lake-scene" src="../assets/lake1.png" alt="lake"hidden>
+   <img id="snow-scene" src="../assets/snow.png" alt="snow mountain"hidden>
+   <img id="land-scene" src="../assets/land.png" alt="green hills"hidden>
+   <img id="sea-scene" src="../assets/snow2.png" alt="seaside"hidden>
+   <button id="lake-button" aria-label="go to lake" hidden></button>
+   <button id="snow-button" aria-label="go to snow mountain" hidden></button>
+   <button id="land-button" aria-label="go to snow mountain" hidden></button>
+   <button id="sea-button" aria-label="go to sea" hidden></button>
+   <button id="title-button">
+    may it stay
+    <span id="subtitle">somewhere together</span>
+   </button>
+   <div id="game-intro" hidden>
+  <h2>A small wish, made together.</h2>
+  <p>
+    This is a game for two.<br>
+    Even when we are far apart,<br>
+    we can move and stack each stone together.<br>
+    Stone by stone, let a small wish take shape.
+  </p>
+  <p>
+    Choose a place in one of the four corners.<br>
+    Click a stone pile to begin your journey.
+  </p>
+</div>
+   <button id="back-button" hidden>← Back</button>
+   <button id="start-button" hidden>Start Together</button>
+   <button id="book-button" aria-label="open stone guide" hidden>
+    <img src="../assets/book.png" alt="stone guide">
+    <span id="book-label">stone guide</span>
+   </button>
+<dialog id="stone-guide">
+  <button id="close-guide" aria-label="Close">×</button>
+  <h2>Stone Guide</h2>
+  <div id="stone-viewer">
+    <div id="stone-stage">
+      <img id="current-stone"
+           src="../assets/stone1.PNG"
+           alt="Stone 1">
+    </div>
+    <div id="stone-info">
+      <p id="stone-description">Each stone carries a different wish</p>
+    </div>
+    <div id="stone-navigation">
+      <button id="previous-stone" aria-label="Previous stone">←</button>
+      <span id="stone-counter">1 / 7</span>
+      <button id="next-stone" aria-label="Next stone">→</button>
+    </div>
+  </div>
+</dialog>
+  <div id="success-screen">
+    <img src="../assets/together.png" alt="Success">
+
+    <div id="success-message">
+      <h1>We made it stay!</h1>
+      <p>I hope you are okay, wherever you are.</p>
+
+      <button id="play-again">Play Again</button>
+      <button id="success-home">Back to Home</button>
+    </div>
+  </div>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.1/p5.min.js"></script>
+<script src="sketch.js"></script>
+</body>
+</html>

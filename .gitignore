@@ -1,0 +1,27 @@
+
+# Node.js dependencies
+node_modules/
+**/node_modules/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# macOS files
+.DS_Store
+**/.DS_Store
+__MACOSX/
+**/._*
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary files
+*.tmp
+*.bak
+
+# Editor settings
+.vscode/
+.idea/
